@@ -1,6 +1,6 @@
 # OtvetiMailRuBlackList
 
-This script add functionality to add/remove users to a blacklist
+This script adds some functionality to add/remove users to/from the blacklist
 it watchs:
 
 1) Question section
