@@ -66,6 +66,7 @@ class Observer {
 
 				ignoreLink.innerText = 'Ignore';
 				ignoreLink.style.fontSize = '0.7rem';
+				ignoreLink.style.color = '#6bd089';
 				ignoreLink.href = '#';
 
 				ignoreLink.addEventListener('click', () => {
@@ -95,6 +96,7 @@ class Observer {
 				let ignoreLink = document.createElement('a');
 				ignoreLink.innerText = '[ Ignore ]';
 				ignoreLink.href = '#';
+				ignoreLink.style.color = '#6bd089';
 
 				ignoreLink.addEventListener('click', () => {
 					this.#addToIgnoreList(link);
@@ -209,4 +211,4 @@ class Observer {
 }
 
 let observer = new Observer();
-observer.run(); 
+observer.run();
