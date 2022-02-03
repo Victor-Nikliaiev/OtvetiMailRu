@@ -6,6 +6,7 @@ class Observer {
 	#isListChanged = false;
 	#currentUserLink = document.querySelector('.pm-toolbar__button__inner_avatar')
 		.href;
+	#win = null;
 
 	run() {
 		this.#observeAnswers({ interval: 1000 });
@@ -68,6 +69,7 @@ class Observer {
 				ignoreLink.innerText = 'Ignore';
 				ignoreLink.style.fontSize = '0.7rem';
 				ignoreLink.style.color = '#6bd089';
+				ignoreLink.style.opacity = 0.6;
 				ignoreLink.href = '#';
 
 				ignoreLink.addEventListener('click', () => {
@@ -98,6 +100,7 @@ class Observer {
 				ignoreLink.innerText = '[ Ignore ]';
 				ignoreLink.href = '#';
 				ignoreLink.style.color = '#6bd089';
+				ignoreLink.style.opacity = 0.6;
 
 				ignoreLink.addEventListener('click', () => {
 					this.#addToIgnoreList(link);
@@ -165,49 +168,125 @@ class Observer {
 	}
 
 	#createUI() {
-		let win = null;
 		let serviceButton = this.#createServiceButton();
 
 		serviceButton.onclick = () => {
-			win = this.#createUIWindow({ width: 400, height: 300 });
+			this.#win = this.#createUIWindow({ width: 400, height: 300 });
 			this.#isListChanged = false;
 
-			win.document.body.insertAdjacentHTML('afterbegin', '<h1>BlackList</h1>');
+			this.#win.document.body.insertAdjacentHTML(
+				'afterbegin',
+				'<h1>BlackList</h1>'
+			);
 
-			let ol = win.document.createElement('ol');
+			this.#setBlackListUI();
 
-			this.#ignoreList.forEach(item => {
-				let li = win.document.createElement('li');
-				let profileLink = win.document.createElement('a');
-				let deleteLink = win.document.createElement('a');
-
-				deleteLink.innerText = '[ Remove ]';
-				profileLink.innerText = '[ Profile ]';
-				profileLink.href = item.url;
-
-				deleteLink.onmouseover = () => {
-					deleteLink.style.cursor = 'pointer';
-				};
-
-				li.append(item.name, profileLink, deleteLink);
-
-				deleteLink.onclick = () => {
-					this.#removeFromIgnoreList(item);
-					this.#isListChanged = true;
-					li.remove();
-				};
-
-				ol.append(li);
-			});
-
-			win.document.body.append(ol);
-
-			win.onbeforeunload = () => {
+			this.#win.onbeforeunload = () => {
 				if (this.#isListChanged) {
 					location.reload();
 				}
 			};
+
+			this.#showDownloadBlackList();
+			this.#showUploadBlackList();
 		};
+	}
+
+	#setBlackListUI() {
+		let ol = this.#win.document.createElement('ol');
+		let prevOl = this.#win.document.body.querySelector('ol');
+
+		if (prevOl !== null) {
+			prevOl.replaceWith(ol);
+		} else {
+			this.#win.document.body.append(ol);
+		}
+
+		this.#ignoreList.forEach(item => {
+			let li = this.#win.document.createElement('li');
+			let profileLink = this.#win.document.createElement('a');
+			let deleteLink = this.#win.document.createElement('a');
+
+			deleteLink.innerText = '[ Remove ]';
+			profileLink.innerText = '[ Profile ]';
+			profileLink.href = item.url;
+
+			deleteLink.onmouseover = () => {
+				deleteLink.style.cursor = 'pointer';
+			};
+
+			li.append(item.name, profileLink, deleteLink);
+
+			deleteLink.onclick = () => {
+				this.#removeFromIgnoreList(item);
+				this.#isListChanged = true;
+				li.remove();
+			};
+
+			ol.append(li);
+		});
+	}
+
+	#showDownloadBlackList() {
+		let data = this.#ignoreList;
+		let blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+
+		let downloadLink = document.createElement('a');
+		downloadLink.innerText = 'Download BlackList';
+		downloadLink.href = URL.createObjectURL(blob);
+		downloadLink.download = 'blackListOtvetiRu.json';
+
+		this.#win.document.body.append(downloadLink);
+	}
+
+	#showUploadBlackList() {
+		let fileField = document.createElement('input');
+		fileField.style.display = 'block';
+		fileField.style.marginTop = '10px';
+		fileField.type = 'file';
+		fileField.accept = 'application/json';
+
+		let reader = new FileReader();
+
+		reader.onload = () => {
+			let userUpload = reader.result;
+
+			if (!userUpload) return;
+
+			try {
+				let errorStatus = false;
+				let settings = JSON.parse(userUpload);
+
+				settings.forEach(({ url, name } = {}) => {
+					if (!url || !name) {
+						errorStatus = true;
+					}
+				});
+
+				if (errorStatus) {
+					alert('Wrong settings');
+					return;
+				}
+
+				this.#ignoreList = [...settings];
+				localStorage.setItem('ignoreList', JSON.stringify(this.#ignoreList));
+
+				this.#refreshBlackListWindow();
+			} catch (err) {
+				alert('File is not a JSON format.');
+			}
+		};
+
+		fileField.onchange = event => {
+			let file = event.target.files[0];
+			reader.readAsText(file);
+		};
+
+		this.#win.document.body.append(fileField);
+	}
+
+	#refreshBlackListWindow() {
+		this.#setBlackListUI();
 	}
 }
 
