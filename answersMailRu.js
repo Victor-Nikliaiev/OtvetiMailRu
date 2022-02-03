@@ -9,46 +9,71 @@ class Observer {
 	#win = null;
 
 	run() {
-		this.#observeAnswers({ interval: 1000 });
-		this.#observeComments({ interval: 1000 });
-		this.#observeQuestions({ interval: 1000 });
+		this.#observeAll({ interval: 1000 });
 		this.#createUI();
 	}
 
-	#observeAnswers({ interval }) {
+	#observeAll({ interval }) {
 		setInterval(() => {
-			this.#repList = document.querySelectorAll('.O7e15');
-
-			if (!this.#repList) {
-				return;
-			}
-
-			this.#filterList(this.#repList);
+			this.#observeQuestions();
+			this.#observeAnswers();
+			this.#observeComments();
 		}, interval);
 	}
 
-	#observeComments({ interval }) {
-		setInterval(() => {
-			this.#commentList = document.querySelectorAll('.fUImZ');
+	#createUI() {
+		let serviceButton = this.#createServiceButton();
 
-			if (!this.#commentList) {
-				return;
-			}
+		serviceButton.onclick = () => {
+			this.#win = this.#createUIWindow({ width: 400, height: 300 });
+			this.#isListChanged = false;
 
-			this.#filterList(this.#commentList);
-		}, interval);
+			this.#win.document.body.insertAdjacentHTML(
+				'afterbegin',
+				'<h1>BlackList</h1>'
+			);
+
+			this.#setBlackListUI();
+
+			this.#win.onbeforeunload = () => {
+				if (this.#isListChanged) {
+					location.reload();
+				}
+			};
+
+			this.#showDownloadBlackList();
+			this.#showUploadBlackList();
+		};
 	}
 
-	#observeQuestions({ interval }) {
-		setInterval(() => {
-			this.#questionList = document.querySelectorAll('div.HPxqQ');
+	#observeAnswers() {
+		this.#repList = document.querySelectorAll('.O7e15');
 
-			if (!this.#questionList) {
-				return;
-			}
+		if (!this.#repList) {
+			return;
+		}
 
-			this.#filterQuestions(this.#questionList);
-		}, interval);
+		this.#filterList(this.#repList);
+	}
+
+	#observeComments() {
+		this.#commentList = document.querySelectorAll('.fUImZ');
+
+		if (!this.#commentList) {
+			return;
+		}
+
+		this.#filterList(this.#commentList);
+	}
+
+	#observeQuestions() {
+		this.#questionList = document.querySelectorAll('div.HPxqQ');
+
+		if (!this.#questionList) {
+			return;
+		}
+
+		this.#filterQuestions(this.#questionList);
 	}
 
 	#filterQuestions(list) {
@@ -165,31 +190,6 @@ class Observer {
 
 		document.body.append(button);
 		return button;
-	}
-
-	#createUI() {
-		let serviceButton = this.#createServiceButton();
-
-		serviceButton.onclick = () => {
-			this.#win = this.#createUIWindow({ width: 400, height: 300 });
-			this.#isListChanged = false;
-
-			this.#win.document.body.insertAdjacentHTML(
-				'afterbegin',
-				'<h1>BlackList</h1>'
-			);
-
-			this.#setBlackListUI();
-
-			this.#win.onbeforeunload = () => {
-				if (this.#isListChanged) {
-					location.reload();
-				}
-			};
-
-			this.#showDownloadBlackList();
-			this.#showUploadBlackList();
-		};
 	}
 
 	#setBlackListUI() {
