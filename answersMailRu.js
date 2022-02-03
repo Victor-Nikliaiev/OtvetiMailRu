@@ -59,6 +59,7 @@ class Observer {
 			let link = node.querySelector('a.ieH_k');
 
 			if (!link.dataLoaded) {
+				link.href += '/';
 				let ignoreLink = document.createElement('a');
 				ignoreLink.style.position = 'absolute';
 				ignoreLink.style.left = 0;
