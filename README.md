@@ -7,4 +7,4 @@ it watchs:
 2) Answer section
 3) Comment section
 
-It can save your your black list as a JSON file and upload it. All data stored in localStorage
+It can save your black list as a JSON file and upload it to set list from a file. All data is stored in localStorage
