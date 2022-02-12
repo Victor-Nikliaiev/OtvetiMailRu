@@ -1,3 +1,15 @@
+// mirrorText();
+
+function mirrorText() {
+	let dd = document.getElementsByClassName('jdGbV');
+	$(function () {
+		dd[0].style.transform = 'scale(-1, 1)';
+	});
+	// $(function () {
+	// 	doucument.body.style.color = 'green';
+	// });
+}
+
 class Observer {
 	#repList = null;
 	#commentList = null;
@@ -30,7 +42,7 @@ class Observer {
 
 			this.#win.document.body.insertAdjacentHTML(
 				'afterbegin',
-				'<h1>BlackList</h1>'
+				`<h1>BlackList (${this.#ignoreList.length})</h1>`
 			);
 
 			this.#setBlackListUI();
